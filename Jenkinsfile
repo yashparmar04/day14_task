@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git url: 'https://github.com/yashparmar04/day14-docker-jenkins.git', branch: 'main'
+                git url: 'https://github.com/yashparmar04/day14_task.git', branch: 'main'
             }
         }
 
@@ -25,7 +25,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
+                    docker.withRegistry('', DOCKERHUB_CREDENTIALS) {
                         docker.image(env.DOCKER_IMAGE).push('latest')
                     }
                 }
