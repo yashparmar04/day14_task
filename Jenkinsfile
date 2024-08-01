@@ -2,20 +2,22 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockercred')
-        DOCKERHUB_REPO = 'yashparmar04/day14'
+        DOCKER_CREDENTIALS_ID = 'dockercred'
+        DOCKER_IMAGE_NAME = 'yashparmar04/day14'
     }
 
     stages {
-        stage('Clone Repository') {
+        stage('Checkout') {
             steps {
-                git url: 'https://github.com/yashparmar04/day14_task.git', branch: 'main'
+                // Clone the Git repository
+                git branch: 'main', url: 'https://github.com/yashparmar04/day14_task.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
+                    // Build the Docker image
                     docker.build(DOCKER_IMAGE_NAME)
                 }
             }
@@ -24,17 +26,10 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
-                        docker.image(env.DOCKER_IMAGE).push('latest')
+                    // Log in to Docker Hub and push the image
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS_ID) {
+                        docker.image(DOCKER_IMAGE_NAME).push('latest')
                     }
-                }
-            }
-        }
-
-        stage('Deploy Container') {
-            steps {
-                script {
-                    sh 'docker run -d --name java-app -p 8085:8080 ' + env.DOCKERHUB_REPO + ':latest'
                 }
             }
         }
@@ -42,6 +37,7 @@ pipeline {
 
     post {
         always {
+            // Clean up
             cleanWs()
         }
     }
